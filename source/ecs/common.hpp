@@ -1,9 +1,6 @@
 #pragma once
 
-#include "ecs/concepts.hpp"
 #include "ecs/config.hpp"
-#include "util/concepts.hpp"
-#include "util/traits.hpp"
 
 #include <compare>
 #include <functional>
@@ -31,7 +28,7 @@ namespace ecs
         // default signature means null a.k.a no components
         Signature() = default;
 
-        constexpr explicit Signature(Inner inner)
+        constexpr Signature(Inner inner)
             : m_inner{ inner }
         {
         }
@@ -69,25 +66,6 @@ namespace ecs
         }
 
         Inner m_inner = 0;
-    };
-
-    template <concepts::Component... Comps>
-        requires util::Unique<Comps...>      //
-             and util::NonEmpty<Comps...>    //
-             and util::SizeLessThan<config::max_components, Comps...>
-    struct SignatureMapper
-    {
-        using Inner = config::SignatureInner;
-
-        template <concepts::Component Comp>
-            requires util::OneOf<Comp, Comps...>
-        static constexpr Signature map()
-        {
-            using Traits = util::PackTraits<Comps...>;
-            auto index   = Traits::template index<Comp>();
-            auto bit     = Inner{ 1 } << index;
-            return Signature{ bit };
-        }
     };
 };
 

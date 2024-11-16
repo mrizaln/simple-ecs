@@ -38,4 +38,10 @@ namespace util
 
     template <std::size_t N, typename... Pack>
     concept SizeLessThan = sizeof...(Pack) < N;
+
+    template <typename Tuple, typename... Pack>
+    concept SubsetOf = TupleTraits<Tuple>::template subset_of<Pack...>;
+
+    template <typename Tuple1, typename Tuple2>
+    concept SubsetOfTuple = subset_of_tuple<Tuple1, Tuple2>();
 }

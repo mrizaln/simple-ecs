@@ -8,16 +8,55 @@
 namespace ecs
 {
     template <concepts::Component... Comps>
+        requires util::Unique<Comps...>      //
+             and util::NonEmpty<Comps...>    //
+             and util::SizeLessThan<config::max_components, Comps...>
+    struct SignatureMapper
+    {
+        using Inner = config::SignatureInner;
+
+        template <concepts::Component Comp>
+            requires util::OneOf<Comp, Comps...>
+        static constexpr Signature map()
+        {
+            using Traits = util::PackTraits<Comps...>;
+            auto index   = Traits::template index<Comp>();
+            auto bit     = Inner{ 1 } << index;
+            return Signature{ bit };
+        }
+
+        template <concepts::Component... OtherComps>
+            requires (util::OneOf<OtherComps, Comps...> or ...)
+        static constexpr Signature map_multiple()
+        {
+            return (map<OtherComps>() | ...);
+        }
+    };
+
+    template <concepts::Component... Comps>
         requires util::Unique<Comps...>
     class ComponentManager
     {
     public:
+        using SigMapper  = SignatureMapper<Comps...>;
+        using Components = std::tuple<Comps...>;
+
         ComponentManager() = default;
 
-        template <util::OneOf<Comps...> Comp>
+        template <util::OneOf<Comps...>... OtherComps>
         static constexpr Signature get_component_signature()
         {
-            return SigMapper::template map<Comp>();
+            return SigMapper::template map_multiple<OtherComps...>();
+        }
+
+        template <concepts::ComponentsTuple Tuple>
+            requires util::SubsetOf<Tuple, Comps...>
+        static constexpr Signature get_component_signature_tup()
+        {
+            auto handler = []<std::size_t... Is>(std::index_sequence<Is...>) {
+                return get_component_signature<std::tuple_element_t<Is, Tuple>...>();
+            };
+            return handler(std::make_index_sequence<std::tuple_size_v<Tuple>>{});
         }
 
         template <util::OneOf<Comps...> Comp>
@@ -48,8 +87,7 @@ namespace ecs
         }
 
     private:
-        using SigMapper  = SignatureMapper<Comps...>;
-        using Components = std::tuple<ComponentArray<Comps>...>;
+        using ComponentArrays = std::tuple<ComponentArray<Comps>...>;
 
         template <util::OneOf<Comps...> Comp, typename Self>
         auto&& get_component_array(this Self&& self)
@@ -58,6 +96,6 @@ namespace ecs
             return std::get<ComponentArray<Comp>>(components);
         }
 
-        Components m_component_arrays;
+        ComponentArrays m_component_arrays;
     };
 }

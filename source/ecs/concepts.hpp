@@ -1,5 +1,7 @@
 #pragma once
 
+#include "ecs/common.hpp"
+
 #include <concepts>
 #include <type_traits>
 
@@ -15,4 +17,35 @@ namespace ecs::concepts
                     and std::is_trivially_copy_constructible_v<T>    //
                     and std::is_trivially_copy_assignable_v<T>       //
                     and std::is_trivially_destructible_v<T>;
+
+    namespace detail
+    {
+        template <typename>
+        struct TupleOfComponents : std::false_type
+        {
+        };
+
+        template <Component... Comps>
+        struct TupleOfComponents<std::tuple<Comps...>> : std::true_type
+        {
+        };
+    }
+
+    template <typename T>
+    concept ComponentsTuple = detail::TupleOfComponents<T>::value;
+
+    template <typename T>
+    concept System = requires (T sys, Entity entity) {
+        typename T::Components;
+        requires ComponentsTuple<typename T::Components>;
+
+        { sys.add_entity(entity) } -> std::same_as<void>;
+        { sys.remove_entity(entity) } -> std::same_as<void>;
+    };
+
+    template <typename T>
+    concept ComponentManager = requires (T comp_manager) {
+        typename T::Components;
+        requires ComponentsTuple<typename T::Components>;
+    };
 }
