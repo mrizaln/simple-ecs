@@ -29,7 +29,7 @@ namespace ecs
             m_index_to_entity.emplace(index, entity);
 
             // put new entry at end
-            m_components[index] = std::move(component);
+            m_components[index] = component;
 
             ++m_size;
         }
@@ -42,7 +42,7 @@ namespace ecs
             auto index_of_removed_entity = m_entity_to_index[entity];
             auto index_of_last_element   = m_size - 1;
 
-            m_components[index_of_removed_entity] = std::move(m_components[index_of_last_element]);
+            m_components[index_of_removed_entity] = m_components[index_of_last_element];
 
             // update map to point to moved spot
             auto last_entity = m_index_to_entity[index_of_last_element];
