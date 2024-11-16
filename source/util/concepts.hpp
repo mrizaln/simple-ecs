@@ -1,5 +1,6 @@
 #pragma once
 
+#include "util/traits.hpp"
 #include <concepts>
 
 namespace util
@@ -19,10 +20,22 @@ namespace util
      * @brief Check whether a type can be indexed.
      *
      * The check only considers non-const operator[] invocation.
-     * Useful to psas const from an array-like (includeing pointer) to the object it points to.
+     * Useful to pass const from an array-like (includeing pointer) to the object it points to.
      */
     template <typename From, typename To>
     concept Indexable = requires (From t, std::size_t i) {
         { t[i] } -> std::same_as<To&>;
     };
+
+    template <typename... Pack>
+    concept Unique = IsUnique<Pack...>::value;
+
+    template <typename T, typename... Pack>
+    concept OneOf = (std::same_as<T, Pack> or ...);
+
+    template <typename... Pack>
+    concept NonEmpty = sizeof...(Pack) > 0;
+
+    template <std::size_t N, typename... Pack>
+    concept SizeLessThan = sizeof...(Pack) < N;
 }
