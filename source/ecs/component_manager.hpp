@@ -13,7 +13,11 @@ namespace ecs
              and util::SizeLessThan<config::max_components, Comps...>
     struct SignatureMapper
     {
-        using Inner = config::SignatureInner;
+        using Inner      = config::SignatureInner;
+        using Components = std::tuple<Comps...>;
+
+        // for concept checking
+        static constexpr auto ident = concepts::detail::SignatureMapperIdent{};
 
         template <concepts::Component Comp>
             requires util::OneOf<Comp, Comps...>
@@ -31,6 +35,16 @@ namespace ecs
         {
             return (map<OtherComps>() | ...);
         }
+
+        template <concepts::ComponentsTuple Tuple>
+            requires util::SubsetOf<Tuple, Comps...>
+        static constexpr Signature map_tuple()
+        {
+            auto handler = []<std::size_t... Is>(std::index_sequence<Is...>) {
+                return map_multiple<std::tuple_element_t<Is, Tuple>...>();
+            };
+            return handler(std::make_index_sequence<std::tuple_size_v<Tuple>>{});
+        }
     };
 
     template <concepts::Component... Comps>
@@ -42,22 +56,6 @@ namespace ecs
         using Components = std::tuple<Comps...>;
 
         ComponentManager() = default;
-
-        template <util::OneOf<Comps...>... OtherComps>
-        static constexpr Signature get_component_signature()
-        {
-            return SigMapper::template map_multiple<OtherComps...>();
-        }
-
-        template <concepts::ComponentsTuple Tuple>
-            requires util::SubsetOf<Tuple, Comps...>
-        static constexpr Signature get_component_signature_tup()
-        {
-            auto handler = []<std::size_t... Is>(std::index_sequence<Is...>) {
-                return get_component_signature<std::tuple_element_t<Is, Tuple>...>();
-            };
-            return handler(std::make_index_sequence<std::tuple_size_v<Tuple>>{});
-        }
 
         template <util::OneOf<Comps...> Comp>
         void add_component(Entity entity, Comp component)

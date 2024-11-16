@@ -29,6 +29,16 @@ namespace ecs::concepts
         struct TupleOfComponents<std::tuple<Comps...>> : std::true_type
         {
         };
+
+        /**
+         * @class SignatureMapperIdent
+         * @brief An empty struct to identify a signature mapper.
+         *
+         * Only used for concept checking. Other type should not construct this type.
+         */
+        struct SignatureMapperIdent
+        {
+        };
     }
 
     template <typename T>
@@ -44,8 +54,10 @@ namespace ecs::concepts
     };
 
     template <typename T>
-    concept ComponentManager = requires (T comp_manager) {
+    concept SignatureMapper = requires {
         typename T::Components;
         requires ComponentsTuple<typename T::Components>;
+
+        { auto{ T::ident } } -> std::same_as<detail::SignatureMapperIdent>;
     };
 }

@@ -19,14 +19,12 @@ namespace ecs
         using SystemsRef  = std::tuple<Sys&...>;
         using SystemsCRef = std::tuple<Sys const&...>;
 
-        template <concepts::ComponentManager CompManager>
-            requires (util::SubsetOfTuple<typename Sys::Components, typename CompManager::Components> and ...)
+        template <concepts::SignatureMapper SigMapper>
+            requires (util::SubsetOfTuple<typename Sys::Components, typename SigMapper::Components> and ...)
         static SystemManager create(Sys... sys)
         {
             auto systems    = Systems{ std::move(sys)... };
-            auto signatures = Signatures{
-                CompManager::template get_component_signature_tup<typename Sys::Components>()...
-            };
+            auto signatures = Signatures{ SigMapper::template map_tuple<typename Sys::Components>()... };
 
             return SystemManager{ std::move(systems), std::move(signatures) };
         }
