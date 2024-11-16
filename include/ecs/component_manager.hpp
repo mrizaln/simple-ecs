@@ -3,7 +3,6 @@
 #include "ecs/common.hpp"
 #include "ecs/component_array.hpp"
 #include "ecs/concepts.hpp"
-#include "ecs/signature_mapper.hpp"
 #include "ecs/util/concepts.hpp"
 
 namespace ecs
@@ -13,7 +12,6 @@ namespace ecs
     class ComponentManager
     {
     public:
-        using SigMapper  = SignatureMapper<Comps...>;
         using Components = std::tuple<Comps...>;
 
         ComponentManager() = default;
@@ -33,10 +31,9 @@ namespace ecs
         }
 
         template <util::OneOf<Comps...> Comp, typename Self>
-        Comp&& get_component(this Self&& self, Entity entity)
+        auto&& get_component(this Self&& self, Entity entity)
         {
-            auto&& comp_array = std::forward<Self>(self).template get_component_array<Comp>();
-            return comp_array.get_data(entity);
+            return std::forward<Self>(self).template get_component_array<Comp>().get_data(entity);
         }
 
         void entity_destroyed(Entity entity)
@@ -51,8 +48,7 @@ namespace ecs
         template <util::OneOf<Comps...> Comp, typename Self>
         auto&& get_component_array(this Self&& self)
         {
-            auto&& components = std::forward<decltype(self)>(self).m_component_arrays;
-            return std::get<ComponentArray<Comp>>(components);
+            return std::get<ComponentArray<Comp>>(std::forward<decltype(self)>(self).m_component_arrays);
         }
 
         ComponentArrays m_component_arrays;

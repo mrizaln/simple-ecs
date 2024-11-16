@@ -14,9 +14,6 @@ namespace ecs
         using Inner      = config::SignatureInner;
         using Components = std::tuple<Comps...>;
 
-        // for concept checking
-        static constexpr auto ident = concepts::detail::SignatureMapperIdent{};
-
         template <concepts::Component Comp>
             requires util::OneOf<Comp, Comps...>
         static constexpr Signature map()

@@ -1,20 +1,30 @@
 #pragma once
 
 #include "ecs/common.hpp"
+#include "ecs/component_manager.hpp"
 #include "ecs/concepts.hpp"
 #include "ecs/entity_manager.hpp"
+#include "ecs/signature_mapper.hpp"
+#include "ecs/system_manager.hpp"
 
 namespace ecs
 {
-    template <typename CompManager, typename SysManager>
+    template <concepts::Component... Comps>
     class Coordinator
     {
     public:
         using EntityManager    = ecs::EntityManager;
-        using ComponentManager = CompManager;
-        using SystemManager    = SysManager;
+        using ComponentManager = ComponentManager<Comps...>;
+        using SystemManager    = SystemManager<Comps...>;
+        using SigMapper        = SignatureMapper<Comps...>;
 
-        Coordinator(EntityManager&& entity_manager, CompManager&& comp_manager, SysManager&& sys_manager)
+        Coordinator() = default;
+
+        Coordinator(
+            EntityManager&&    entity_manager,
+            ComponentManager&& comp_manager,
+            SystemManager&&    sys_manager
+        )
             : m_entity_manager{ std::move(entity_manager) }
             , m_component_manager{ std::move(comp_manager) }
             , m_system_manager{ std::move(sys_manager) }
@@ -44,7 +54,7 @@ namespace ecs
             m_component_manager.add_component(entity, component);
 
             auto signature = m_entity_manager.get_signature(entity);
-            signature.set(CompManager::SigMapper::template map<Comp>());
+            signature.set(SigMapper::template map<Comp>());
             m_entity_manager.set_signature(entity, signature);
 
             m_system_manager.entity_signature_changed(entity, signature);
@@ -56,7 +66,7 @@ namespace ecs
             m_component_manager.template remove_component<Comp>(entity);
 
             auto signature = m_entity_manager.get_signature(entity);
-            signature.reset(CompManager::SigMapper::template map<Comp>());
+            signature.reset(SigMapper::template map<Comp>());
             m_entity_manager.set_signature(entity, signature);
 
             m_system_manager.entity_signature_changed(entity, signature);
@@ -73,17 +83,20 @@ namespace ecs
         // system methods
         // --------------
 
-        template <typename Self>
-        auto&& systems(this Self&& self)
+        template <typename System, typename... Args>
+            requires concepts::HasComponents<System> and std::derived_from<System, ISystem<Comps...>>
+        void create_system(Args&&... args)
         {
-            return std::forward<Self>(self).m_system_manager.systems();
+            m_system_manager.template create_system<System>(std::forward<Args>(args)...);
         }
+
+        void update(Duration frame_time) { m_system_manager.update(*this, frame_time); }
 
         // --------------
 
     private:
-        EntityManager m_entity_manager;
-        CompManager   m_component_manager;
-        SysManager    m_system_manager;
+        EntityManager    m_entity_manager;
+        ComponentManager m_component_manager;
+        SystemManager    m_system_manager;
     };
 }
