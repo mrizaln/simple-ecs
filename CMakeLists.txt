@@ -19,14 +19,14 @@ add_library(simple-ecs INTERFACE)
 target_include_directories(simple-ecs INTERFACE include)
 # ~~~
 
-# main
+# nexus
 # ~~~
-add_executable(main source/main.cpp)
-target_include_directories(main PRIVATE source)
-target_link_libraries(main PRIVATE fmt::fmt glm::glm fetch::glfw-cpp simple-ecs)
-target_compile_options(main PRIVATE -Wall -Wextra -Wconversion -Wswitch-enum)
+add_executable(nexus source/main.cpp source/system/physics_system.cpp)
+target_include_directories(nexus PRIVATE source)
+target_link_libraries(nexus PRIVATE fmt::fmt glm::glm fetch::glfw-cpp simple-ecs)
+target_compile_options(nexus PRIVATE -Wall -Wextra -Wconversion -Wswitch-enum -Wno-changes-meaning)
 
 # sanitizer
-target_compile_options(main PRIVATE -fsanitize=address,leak,undefined)
-target_link_options(main PRIVATE -fsanitize=address,leak,undefined)
+target_compile_options(nexus PRIVATE -fsanitize=address,leak,undefined)
+target_link_options(nexus PRIVATE -fsanitize=address,leak,undefined)
 #~~~
