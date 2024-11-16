@@ -3,7 +3,7 @@
 #include "ecs/common.hpp"
 #include "ecs/concepts.hpp"
 #include "ecs/config.hpp"
-#include "util/fixed_array.hpp"
+#include "ecs/util/fixed_array.hpp"
 
 #include <cassert>
 #include <unordered_map>

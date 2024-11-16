@@ -13,11 +13,20 @@ find_package(glfw3 REQUIRED)
 
 include(cmake/fetched-libs.cmake) # emits: fetch::glfw-cpp
 
+# simple-ecs library
+# ~~~
+add_library(simple-ecs INTERFACE)
+target_include_directories(simple-ecs INTERFACE include)
+# ~~~
+
+# main
+# ~~~
 add_executable(main source/main.cpp)
 target_include_directories(main PRIVATE source)
-target_link_libraries(main PRIVATE fmt::fmt glm::glm fetch::glfw-cpp)
+target_link_libraries(main PRIVATE fmt::fmt glm::glm fetch::glfw-cpp simple-ecs)
 target_compile_options(main PRIVATE -Wall -Wextra -Wconversion -Wswitch-enum)
 
 # sanitizer
 target_compile_options(main PRIVATE -fsanitize=address,leak,undefined)
 target_link_options(main PRIVATE -fsanitize=address,leak,undefined)
+#~~~

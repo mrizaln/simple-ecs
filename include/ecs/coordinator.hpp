@@ -10,10 +10,14 @@ namespace ecs
     class Coordinator
     {
     public:
-        Coordinator(CompManager&& comp_manager, SysManager&& sys_manager, EntityManager&& entity_manager)
-            : m_component_manager{ std::move(comp_manager) }
+        using EntityManager    = ecs::EntityManager;
+        using ComponentManager = CompManager;
+        using SystemManager    = SysManager;
+
+        Coordinator(EntityManager&& entity_manager, CompManager&& comp_manager, SysManager&& sys_manager)
+            : m_entity_manager{ std::move(entity_manager) }
+            , m_component_manager{ std::move(comp_manager) }
             , m_system_manager{ std::move(sys_manager) }
-            , m_entity_manager{ std::move(entity_manager) }
         {
         }
 
@@ -24,9 +28,9 @@ namespace ecs
 
         void destroy_entity(Entity entity)
         {
+            m_entity_manager.destroy_entity(entity);
             m_component_manager.entity_destroyed(entity);
             m_system_manager.entity_destroyed(entity);
-            m_entity_manager.destroy_entity(entity);
         }
 
         // --------------
@@ -69,13 +73,17 @@ namespace ecs
         // system methods
         // --------------
 
-        // nada
+        template <typename Self>
+        auto&& systems(this Self&& self)
+        {
+            return std::forward<Self>(self).m_system_manager.systems();
+        }
 
         // --------------
 
     private:
+        EntityManager m_entity_manager;
         CompManager   m_component_manager;
         SysManager    m_system_manager;
-        EntityManager m_entity_manager;
     };
 }

@@ -1,11 +1,11 @@
 #pragma once
 
-#include "util/common.hpp"
+#include "ecs/util/common.hpp"
 
 #include <memory>
 #include <utility>
 
-namespace util
+namespace ecs::util
 {
     /**
      * @brief A simple wrapper for `std::unique_ptr<T[]>` that remembers its size (constexpr).
@@ -35,7 +35,7 @@ namespace util
         template <typename Self>
         auto&& operator[](this Self&& self, std::size_t index) noexcept
         {
-            return ::util::index<T>(std::forward<Self>(self).m_data, index);
+            return util::index<T>(std::forward<Self>(self).m_data, index);
         }
 
         template <typename Self>

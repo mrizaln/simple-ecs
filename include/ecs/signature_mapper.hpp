@@ -1,7 +1,7 @@
 #pragma once
 
 #include "ecs/concepts.hpp"
-#include "util/concepts.hpp"
+#include "ecs/util/concepts.hpp"
 
 namespace ecs
 {

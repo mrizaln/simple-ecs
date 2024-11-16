@@ -1,7 +1,7 @@
 #pragma once
 
 #include "ecs/common.hpp"
-#include "util/fixed_array.hpp"
+#include "ecs/util/fixed_array.hpp"
 
 #include <cassert>
 #include <queue>

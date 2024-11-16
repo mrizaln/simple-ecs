@@ -1,9 +1,10 @@
 #pragma once
 
-#include "util/traits.hpp"
+#include "ecs/util/traits.hpp"
+
 #include <concepts>
 
-namespace util
+namespace ecs::util
 {
     /**
      * @brief Check whether a type can be dereferenced.

@@ -2,9 +2,9 @@
 
 #include "ecs/common.hpp"
 #include "ecs/concepts.hpp"
-#include "util/common.hpp"
-#include "util/concepts.hpp"
-#include "util/traits.hpp"
+#include "ecs/util/common.hpp"
+#include "ecs/util/concepts.hpp"
+#include "ecs/util/traits.hpp"
 
 #include <array>
 

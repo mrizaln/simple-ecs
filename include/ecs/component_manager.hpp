@@ -4,7 +4,7 @@
 #include "ecs/component_array.hpp"
 #include "ecs/concepts.hpp"
 #include "ecs/signature_mapper.hpp"
-#include "util/concepts.hpp"
+#include "ecs/util/concepts.hpp"
 
 namespace ecs
 {

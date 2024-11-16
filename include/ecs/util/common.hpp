@@ -1,10 +1,10 @@
 #pragma once
 
-#include "util/concepts.hpp"
+#include "ecs/util/concepts.hpp"
 
 #include <utility>
 
-namespace util
+namespace ecs::util
 {
     /**
      * @brief Derefernce a pointer while preserving constness.

@@ -3,7 +3,8 @@
 #include <tuple>
 #include <type_traits>
 #include <utility>
-namespace util
+
+namespace ecs::util
 {
     template <typename...>
     struct IsUnique : std::true_type
