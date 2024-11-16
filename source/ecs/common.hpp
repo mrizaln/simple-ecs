@@ -28,6 +28,9 @@ namespace ecs
     {
         using Inner = config::SignatureInner;
 
+        // default signature means null a.k.a no components
+        Signature() = default;
+
         constexpr explicit Signature(Inner inner)
             : m_inner{ inner }
         {
