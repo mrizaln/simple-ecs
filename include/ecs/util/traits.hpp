@@ -77,4 +77,16 @@ namespace ecs::util
 
         return handler(std::make_index_sequence<Traits1::size>{});
     }
+
+    template <typename>
+    struct TupleRef
+    {
+        static_assert(false, "Not a tuple");
+    };
+
+    template <typename... Ts>
+    struct TupleRef<std::tuple<Ts...>>
+    {
+        using Type = std::tuple<Ts&...>;
+    };
 }

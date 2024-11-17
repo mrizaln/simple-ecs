@@ -12,15 +12,13 @@ namespace nexus
         ecs::Duration                frame_time
     )
     {
-        std::println(">>> frame start");
+        auto dt = frame_time.count();
 
         for (const auto& entity : entities) {
-            auto& gravity   = context.get_component<Gravity>(entity);
-            auto& rigidBody = context.get_component<RigidBody>(entity);
-            auto& transform = context.get_component<Transform>(entity);
+            auto [gravity, rigidbody, tranform] = context.get_component_tuple<Components>(entity);
 
-            auto& accel = rigidBody.m_acceleration;
-            std::println("\t[{:>2}] accel: ({}, {}, {})", entity.m_inner, accel.x, accel.y, accel.z);
+            tranform.m_position  += rigidbody.m_velocity * dt;
+            rigidbody.m_velocity += gravity.m_force * dt;
         }
     }
 }

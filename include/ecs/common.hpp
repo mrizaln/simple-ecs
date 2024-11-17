@@ -17,7 +17,7 @@ namespace ecs
         {
         }
 
-        std::strong_ordering operator<=>(this Entity const&, Entity const&) = default;
+        std::strong_ordering operator<=>(Entity const&) const = default;
 
         Inner m_inner = 0;
     };
@@ -34,7 +34,7 @@ namespace ecs
         {
         }
 
-        std::strong_ordering operator<=>(this Signature const&, Signature const&) = default;
+        std::strong_ordering operator<=>(Signature const&) const = default;
 
         // clang-format off
         constexpr bool isComposite() const { return std::popcount(m_inner) > 1; }

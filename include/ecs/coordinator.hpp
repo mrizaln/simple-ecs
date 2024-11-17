@@ -60,6 +60,15 @@ namespace ecs
             m_system_manager.entity_signature_changed(entity, signature);
         }
 
+        template <concepts::ComponentsTuple CompsTuple>
+        void add_component_tuple(Entity entity, CompsTuple&& components)
+        {
+            auto handler = [&]<std::size_t... Is>(std::index_sequence<Is...>) {
+                (add_component(entity, std::get<Is>(components)), ...);
+            };
+            handler(std::make_index_sequence<std::tuple_size_v<CompsTuple>>{});
+        }
+
         template <concepts::Component Comp>
         void remove_component(Entity entity)
         {
@@ -72,11 +81,31 @@ namespace ecs
             m_system_manager.entity_signature_changed(entity, signature);
         }
 
+        template <concepts::ComponentsTuple CompsTuple>
+        void remove_component_tuple(Entity entity)
+        {
+            auto handler = [&]<std::size_t... Is>(std::index_sequence<Is...>) {
+                (remove_component<std::tuple_element_t<Is, CompsTuple>>(entity), ...);
+            };
+            handler(std::make_index_sequence<std::tuple_size_v<CompsTuple>>{});
+        }
+
         template <concepts::Component Comp>
         Comp& get_component(Entity entity)
         {
             return m_component_manager.template get_component<Comp>(entity);
         }
+
+        template <concepts::ComponentsTuple CompsTuple>
+        util::TupleRef<CompsTuple>::Type get_component_tuple(Entity entity)
+        {
+            auto handler = [&]<std::size_t... Is>(std::index_sequence<Is...>) {
+                return typename util::TupleRef<CompsTuple>::Type{
+                    get_component<std::tuple_element_t<Is, CompsTuple>>(entity)...
+                };
+            };
+            return handler(std::make_index_sequence<std::tuple_size_v<CompsTuple>>{});
+        };
 
         // -----------------
 
