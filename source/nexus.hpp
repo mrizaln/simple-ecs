@@ -82,14 +82,9 @@ namespace nexus
 
         void run()
         {
-            using AllComponents = std::tuple<
-                nexus::Gravity,    //
-                nexus::RigidBody,
-                nexus::Transform,
-                nexus::Renderable>;
-
-            static_assert(ecs::util::SubsetOfTuple<nexus::PhysicsSystem::Components, AllComponents>);
-            static_assert(ecs::util::SubsetOfTuple<nexus::RenderSystem::Components, AllComponents>);
+            using AllComponents = ecs::util::TupleCatUniq<
+                nexus::PhysicsSystem::Components,    //
+                nexus::RenderSystem::Components>;
 
             auto rand_pos   = RandomGenerator{ -125.0f, 125.0f };
             auto rand_rot   = RandomGenerator{ 0.0f, 3.14f };
@@ -106,9 +101,9 @@ namespace nexus
                 auto entity = m_coordinator.create_entity();
 
                 auto scale    = rand_scale();
-                auto vel      = [&]() { return rand_vel() / scale; };
-                auto avel     = [&]() { return rand_rot() / scale; };
-                auto vel_half = [&]() {
+                auto vel      = [&] { return rand_vel() / scale; };
+                auto avel     = [&] { return rand_rot() / scale; };
+                auto vel_half = [&] {
                     auto range = rand_scale.range();
                     return (rand_vel() + range / 2.0f) / scale;
                 };

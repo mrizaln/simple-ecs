@@ -91,22 +91,41 @@ namespace ecs
             handler(std::make_index_sequence<std::tuple_size_v<CompsTuple>>{});
         }
 
-        template <concepts::Component Comp>
-        Comp& get_component(Entity entity)
+        template <concepts::Component Comp, typename Self>
+        auto&& get_component(this Self&& self, Entity entity)
         {
-            return m_component_manager.template get_component<Comp>(entity);
+            auto&& comp_manager = std::forward<Self>(self).m_component_manager;
+            return comp_manager.template get_component<Comp>(entity);
         }
 
-        template <concepts::ComponentsTuple CompsTuple>
-        util::TupleRef<CompsTuple>::Type get_component_tuple(Entity entity)
+        template <concepts::ComponentsTuple CompsTuple, typename Self>
+        auto get_component_tuple(this Self&& self, Entity entity)
         {
             auto handler = [&]<std::size_t... Is>(std::index_sequence<Is...>) {
-                return typename util::TupleRef<CompsTuple>::Type{
-                    get_component<std::tuple_element_t<Is, CompsTuple>>(entity)...
-                };
+                return std::forward_as_tuple(
+                    std::forward<Self>(self).template get_component<std::tuple_element_t<Is, CompsTuple>>(
+                        entity
+                    )...
+                );
             };
             return handler(std::make_index_sequence<std::tuple_size_v<CompsTuple>>{});
         };
+
+        template <concepts::Component Comp>
+        bool has_component(Entity entity) const
+        {
+            auto comp_signature   = SigMapper::template map<Comp>;
+            auto entity_signature = m_entity_manager.get_signature(entity);
+            return (comp_signature & entity_signature) == comp_signature;
+        }
+
+        template <concepts::ComponentsTuple CompsTuple>
+        bool has_component_tuple(Entity entity) const
+        {
+            auto comps_signature  = SigMapper::template map_tuple<CompsTuple>;
+            auto entity_signature = m_entity_manager.get_signature(entity);
+            return (comps_signature & entity_signature) == comps_signature;
+        }
 
         // -----------------
 
@@ -126,7 +145,7 @@ namespace ecs
 
         // --------------
 
-    private:
+        // private:
         EntityManager    m_entity_manager;
         ComponentManager m_component_manager;
         SystemManager    m_system_manager;

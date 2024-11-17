@@ -33,7 +33,8 @@ namespace ecs
         template <util::OneOf<Comps...> Comp, typename Self>
         auto&& get_component(this Self&& self, Entity entity)
         {
-            return std::forward<Self>(self).template get_component_array<Comp>().get_data(entity);
+            auto&& comp_array = std::forward<Self>(self).template get_component_array<Comp>();
+            return comp_array.get_data(entity);
         }
 
         void entity_destroyed(Entity entity)
@@ -48,7 +49,8 @@ namespace ecs
         template <util::OneOf<Comps...> Comp, typename Self>
         auto&& get_component_array(this Self&& self)
         {
-            return std::get<ComponentArray<Comp>>(std::forward<decltype(self)>(self).m_component_arrays);
+            auto&& comp_arrays = std::forward<decltype(self)>(self).m_component_arrays;
+            return std::get<ComponentArray<Comp>>(comp_arrays);
         }
 
         ComponentArrays m_component_arrays;

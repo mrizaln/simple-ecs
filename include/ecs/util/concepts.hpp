@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ecs/util/traits.hpp"
+#include "ecs/util/meta.hpp"
 
 #include <concepts>
 
