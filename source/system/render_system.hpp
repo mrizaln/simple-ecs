@@ -2,9 +2,9 @@
 
 #include "component/renderable.hpp"
 #include "component/transform.hpp"
-#include "ecs_config.hpp"
 #include "graphics/cube_primitive.hpp"
 #include "graphics/shader.hpp"
+#include "ecs_config.hpp"
 
 #include <glfw_cpp/window.hpp>
 

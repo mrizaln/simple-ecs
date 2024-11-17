@@ -1,11 +1,11 @@
 #pragma once
 
 #include "component/renderable.hpp"
-#include "ecs/util/concepts.hpp"
 #include "component/gravity.hpp"
 #include "component/rigid_body.hpp"
 #include "component/transform.hpp"
 #include "graphics/shader.hpp"
+#include "system/camera_control_system.hpp"
 #include "system/physics_system.hpp"
 #include "system/render_system.hpp"
 #include "ecs_config.hpp"
@@ -70,6 +70,7 @@ namespace nexus
             m_window.setVsync(true);
 
             m_coordinator.create_system<nexus::PhysicsSystem>();
+            m_coordinator.create_system<nexus::CameraControlSystem>(m_window);
             m_coordinator.create_system<nexus::RenderSystem>(
                 m_coordinator,
                 m_window,

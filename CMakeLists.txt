@@ -21,7 +21,12 @@ target_include_directories(simple-ecs INTERFACE include)
 
 # nexus
 # ~~~
-add_executable(nexus source/main.cpp source/system/physics_system.cpp source/system/render_system.cpp)
+add_executable(nexus 
+  source/main.cpp 
+  source/system/physics_system.cpp 
+  source/system/render_system.cpp 
+  source/system/camera_control_system.cpp)
+
 target_include_directories(nexus PRIVATE source)
 target_link_libraries(nexus PRIVATE glm::glm glbinding::glbinding fetch::glfw-cpp simple-ecs)
 target_compile_options(nexus PRIVATE -Wall -Wextra -Wconversion -Wno-changes-meaning)

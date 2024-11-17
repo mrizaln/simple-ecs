@@ -1,4 +1,5 @@
 #include "render_system.hpp"
+
 #include "component/camera.hpp"
 
 #include <ecs/coordinator.hpp>
@@ -7,6 +8,22 @@
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/gtc/quaternion.hpp>
 #include <glbinding/gl/gl.h>
+
+#include <print>
+
+namespace
+{
+    glm::mat4 view_matrix(glm::vec3 position, glm::quat rotation)
+    {
+        auto front = rotation * nexus::Camera::front;
+        return glm::lookAt(position, position + front, nexus::Camera::world_up);
+    }
+
+    glm::mat4 projection_matrix(float width, float height, float fov, float near, float far)
+    {
+        return glm::perspective(glm::radians(fov), width / height, near, far);
+    }
+}
 
 namespace nexus
 {
@@ -25,12 +42,10 @@ namespace nexus
             Transform{
                 .m_position = { 0.0f, -50.0f, 200.0f },
                 .m_scale    = glm::vec3{ 1.0f },
-                .m_rotation = glm::vec3{ 0.0f, glm::radians(270.0f), 0.0f },
+                .m_rotation = glm::vec3{ 0.0f, 0.0f, 0.0f },
             }
         );
-
-        const auto& rotation = coordinator.get_component<Transform>(m_camera).m_rotation;
-        coordinator.add_component(m_camera, Camera::create(glm::eulerAngles(rotation), 90.0f, 0.1f, 1000.0f));
+        coordinator.add_component(m_camera, Camera{ 90.0f, 0.1f, 1000.0f, 20.0f, 1.0f });
 
         gl::glClearColor(0.1f, 0.1f, 0.11f, 1.0f);
         gl::glEnable(gl::GL_DEPTH_TEST);
@@ -51,11 +66,11 @@ namespace nexus
 
         m_shader.use();
 
-        auto camera           = context.get_component<Camera>(m_camera);
-        auto camera_transform = context.get_component<Transform>(m_camera);
+        const auto& [fov, near, far, speed, sensitivity] = context.get_component<Camera>(m_camera);
+        const auto& [cam_pos, cam_scale, cam_rot]        = context.get_component<Transform>(m_camera);
 
-        auto view       = camera.view_matrix(camera_transform.m_position);
-        auto projection = camera.projection_matrix((float)width, (float)height);
+        auto view       = view_matrix(cam_pos, cam_rot);
+        auto projection = projection_matrix((float)width, (float)height, fov, near, far);
 
         m_shader.set_uniform("u_view", view);
         m_shader.set_uniform("u_projection", projection);
