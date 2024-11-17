@@ -36,16 +36,21 @@ namespace ecs
         SystemManager() = default;
 
         template <typename System, typename... Args>
-            requires concepts::HasComponents<System> and std::derived_from<System, ISystem<Comps...>>
-        void create_system(Args&&... args)
+            requires concepts::HasComponents<System>                 //
+                 and std::derived_from<System, ISystem<Comps...>>    //
+                 and std::constructible_from<System, Args...>
+        System& create_system(Args&&... args)
         {
-            using SigMapper = SignatureMapper<Comps...>;
-
-            m_systems.emplace_back(
-                SigMapper::template map_tuple<typename System::Components>(),
-                std::make_unique<System>(std::forward<Args>(args)...)
-            );
             m_entities.emplace_back();
+
+            using SigMapper  = SignatureMapper<Comps...>;
+            auto  signature  = SigMapper::template map_tuple<typename System::Components>();
+            auto  system     = std::make_unique<System>(std::forward<Args>(args)...);
+            auto* system_ptr = system.get();
+
+            m_systems.emplace_back(signature, std::move(system));
+
+            return *system_ptr;
         }
 
         void entity_destroyed(Entity entity)

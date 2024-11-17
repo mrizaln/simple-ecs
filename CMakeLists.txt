@@ -10,6 +10,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 find_package(fmt REQUIRED)
 find_package(glm REQUIRED)
 find_package(glfw3 REQUIRED)
+find_package(glbinding REQUIRED)
 
 include(cmake/fetched-libs.cmake) # emits: fetch::glfw-cpp
 
@@ -21,12 +22,21 @@ target_include_directories(simple-ecs INTERFACE include)
 
 # nexus
 # ~~~
-add_executable(nexus source/main.cpp source/system/physics_system.cpp)
+add_executable(nexus source/main.cpp source/system/physics_system.cpp source/system/render_system.cpp)
 target_include_directories(nexus PRIVATE source)
-target_link_libraries(nexus PRIVATE fmt::fmt glm::glm fetch::glfw-cpp simple-ecs)
-target_compile_options(nexus PRIVATE -Wall -Wextra -Wconversion -Wswitch-enum -Wno-changes-meaning)
+target_link_libraries(nexus PRIVATE fmt::fmt glm::glm glbinding::glbinding fetch::glfw-cpp simple-ecs)
+target_compile_options(nexus PRIVATE -Wall -Wextra -Wconversion -Wno-changes-meaning)
 
-# sanitizer
-target_compile_options(nexus PRIVATE -fsanitize=address,leak,undefined)
-target_link_options(nexus PRIVATE -fsanitize=address,leak,undefined)
-#~~~
+# # sanitizer
+# target_compile_options(nexus PRIVATE -fsanitize=address,leak,undefined)
+# target_link_options(nexus PRIVATE -fsanitize=address,leak,undefined)
+# #~~~
+
+# copy asset to build directory
+add_custom_command(
+    TARGET nexus POST_BUILD
+    COMMENT "copy asset to build directory"
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+    ${CMAKE_SOURCE_DIR}/asset $<TARGET_FILE_DIR:nexus>/asset
+)
+

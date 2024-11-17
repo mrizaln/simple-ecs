@@ -13,13 +13,12 @@
 
 namespace nexus
 {
-    class PhysicsSystem : public ecs_config::ISystem
+    class PhysicsSystem final : public ecs_config::ISystem
     {
     public:
         using Components = std::tuple<Gravity, RigidBody, Transform>;
 
-        PhysicsSystem() = default;
-
+        PhysicsSystem()           = default;
         ~PhysicsSystem() override = default;
 
         void update(

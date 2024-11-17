@@ -6,6 +6,7 @@
 #include "ecs/entity_manager.hpp"
 #include "ecs/signature_mapper.hpp"
 #include "ecs/system_manager.hpp"
+#include <concepts>
 
 namespace ecs
 {
@@ -113,10 +114,12 @@ namespace ecs
         // --------------
 
         template <typename System, typename... Args>
-            requires concepts::HasComponents<System> and std::derived_from<System, ISystem<Comps...>>
-        void create_system(Args&&... args)
+            requires concepts::HasComponents<System>                 //
+                 and std::derived_from<System, ISystem<Comps...>>    //
+                 and std::constructible_from<System, Args...>
+        System& create_system(Args&&... args)
         {
-            m_system_manager.template create_system<System>(std::forward<Args>(args)...);
+            return m_system_manager.template create_system<System>(std::forward<Args>(args)...);
         }
 
         void update(Duration frame_time) { m_system_manager.update(*this, frame_time); }

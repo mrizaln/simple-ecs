@@ -15,7 +15,7 @@ namespace nexus
         auto dt = frame_time.count();
 
         for (const auto& entity : entities) {
-            auto [gravity, rigidbody, tranform] = context.get_component_tuple<Components>(entity);
+            auto&& [gravity, rigidbody, tranform] = context.get_component_tuple<Components>(entity);
 
             tranform.m_position  += rigidbody.m_velocity * dt;
             rigidbody.m_velocity += gravity.m_force * dt;
