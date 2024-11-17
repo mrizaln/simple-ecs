@@ -21,7 +21,7 @@ namespace nexus
         glm::vec3 m_up;
         glm::vec3 m_front;
         glm::vec3 m_right;
-        float     m_fov;
+        float     m_fov;        // in degrees
         float     m_near;
         float     m_far;
 
@@ -31,9 +31,9 @@ namespace nexus
             auto yaw   = rotation.y;
 
             auto direction = glm::vec3{
-                std::cos(glm::radians(pitch)) * std::cos(glm::radians(yaw)),
-                std::sin(glm::radians(pitch)),
-                std::cos(glm::radians(pitch)) * std::sin(glm::radians(yaw)),
+                std::cos(pitch) * std::cos(yaw),
+                std::sin(pitch),
+                std::cos(pitch) * std::sin(yaw),
             };
 
             auto front = glm::normalize(direction);
@@ -56,9 +56,9 @@ namespace nexus
             auto yaw   = rotation.y;
 
             auto direction = glm::vec3{
-                std::cos(glm::radians(pitch)) * std::cos(glm::radians(yaw)),
-                std::sin(glm::radians(pitch)),
-                std::cos(glm::radians(pitch)) * std::sin(glm::radians(yaw)),
+                std::cos(pitch) * std::cos(yaw),
+                std::sin(pitch),
+                std::cos(pitch) * std::sin(yaw),
             };
 
             m_front = glm::normalize(direction);
