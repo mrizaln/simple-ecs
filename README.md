@@ -3,7 +3,7 @@ Simple ECS implementation in C++23 based on [an article by Austin Morlan](https:
 
 ## Preview
 
-https://github.com/user-attachments/assets/dc7e4db3-37ee-4aaa-9a44-2841d3661aa7
+https://github.com/user-attachments/assets/9203cc33-cd01-4ad8-9c92-e7e7c7ab80ad
 
 ## Building
 
