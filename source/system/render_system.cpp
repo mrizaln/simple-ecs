@@ -5,24 +5,8 @@
 
 #include <glm/ext/matrix_clip_space.hpp>
 #include <glm/ext/matrix_transform.hpp>
+#include <glm/gtc/quaternion.hpp>
 #include <glbinding/gl/gl.h>
-
-namespace
-{
-    // euler angle rotation
-    glm::mat4 rotation_matrix(glm::mat4 mat, const glm::vec3& rotation)
-    {
-        auto pitch = rotation.x;
-        auto yaw   = rotation.y;
-        auto roll  = rotation.z;
-
-        mat = glm::rotate(mat, glm::radians(pitch), { 1.0f, 0.0f, 0.0f });
-        mat = glm::rotate(mat, glm::radians(yaw), { 0.0f, 1.0f, 0.0f });
-        mat = glm::rotate(mat, glm::radians(roll), { 0.0f, 0.0f, 1.0f });
-
-        return mat;
-    }
-}
 
 namespace nexus
 {
@@ -39,16 +23,17 @@ namespace nexus
         coordinator.add_component(
             m_camera,
             Transform{
-                .m_position = { 0.0f, 0.0f, 3.0f },
-                .m_rotation = { 0.0f, 270.0f, 0.0f },
+                .m_position = { 0.0f, -50.0f, 200.0f },
                 .m_scale    = glm::vec3{ 1.0f },
+                .m_rotation = glm::vec3{ 0.0f, glm::radians(270.0f), 0.0f },
             }
         );
 
         const auto& rotation = coordinator.get_component<Transform>(m_camera).m_rotation;
-        coordinator.add_component(m_camera, Camera::create(rotation, 90.0f, 0.1f, 100.0f));
+        coordinator.add_component(m_camera, Camera::create(glm::eulerAngles(rotation), 90.0f, 0.1f, 1000.0f));
 
         gl::glClearColor(0.1f, 0.1f, 0.11f, 1.0f);
+        gl::glEnable(gl::GL_DEPTH_TEST);
     }
 
     void RenderSystem::update(
@@ -80,7 +65,7 @@ namespace nexus
 
             auto model = glm::translate(glm::mat4{ 1.0f }, transform.m_position);
             model      = glm::scale(model, transform.m_scale);
-            model      = rotation_matrix(model, transform.m_rotation);
+            model      = model * glm::mat4_cast(transform.m_rotation);
 
             m_shader.set_uniform("u_model", model);
             m_shader.set_uniform("u_color", renderable.m_color);
